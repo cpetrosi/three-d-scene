@@ -75,30 +75,20 @@
     newSphereE.translate({ tx: 0.25, ty: 0.2, tz: 0.2 });
     newSphereE.scale({ sx: 0.1, sy: 0.1, sz: 0.9 });
 
-    let pyramid = new Mesh.pyramid();
-    let pyramidV = pyramid.toRawTriangleArray();
-    let pyramidC = { r: 0.0, g: 0.0, b: 0.0 };
-    let normalP = pyramid.toVertexNormalArray();
-    let newPyramid = new ThreeD(pyramidV, pyramidC, mode2, normalP);
+    let sphereF = new Mesh.sphere();
+    let sphereVF = sphereF.toRawTriangleArray();
+    let sphereCF = { r: 0.0, g: 0.0, b: 0.0};
+    let normalSF = sphereF.toVertexNormalArray();
+    let newSphereF = new ThreeD(sphereVF, sphereCF, mode2, normalSF);
 
-    newPyramid.translate({ tx: 0.0, ty: -0.1, tz: 0.2});
-    newPyramid.scale({ sx: 0.1, sy: 0.1, sz: 0.9 });
-
-    let cube = new Mesh.cube();
-    let cubeV = cube.toRawTriangleArray();
-    let cubeC = { r: 0.0, g: 0.0, b: 1.0 };
-    let normalC = cube.toVertexNormalArray();
-    let newCube = new ThreeD(cubeV, cubeC, mode2, normalC);
-
-    newCube.translate({ tx: 1.7, ty: 0.01, tz: 0.2 });
-    newCube.scale({ sx: 0.8, sy: 0.8, sz: 0.8 });
+    newSphereF.translate({ tx: 0.0, ty: -0.1, tz: 0.2});
+    newSphereF.scale({ sx: 0.05, sy: 0.05, sz: 0.9});
 
     newSphereA.addChild(newSphereB);
     newSphereA.addChild(newSphereC);
     newSphereA.addChild(newSphereD);
     newSphereA.addChild(newSphereE);
-    newSphereA.addChild(newPyramid);
-    newSphereA.addChild(newCube);
+    newSphereA.addChild(newSphereF);
 
     // Build the objects to display.
     let objectsToDraw = [newSphereA];
