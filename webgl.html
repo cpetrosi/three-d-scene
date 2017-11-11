@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+    <title>Hello WebGL (again)</title>
+    <link rel="stylesheet" href="webgl.css" />
+  </head>
+  <body>
+    <!-- <h1>Hello WebGL (again)!</h1>
+
+    <p>You’ll need a WebGL-capable web browser to see anything here;
+     instructions can be found in this
+     <a href="http://www.khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">official
+     WebGL wiki page</a>.</p>
+
+    <p>This page adds a few more fundamental features, showing how
+      further functionality can be added to the software stack.
+      Click the canvas to see what else is new.</p> -->
+
+    <canvas id="hello-webgl" width="1024" height="512">
+      Sorry, your web browser does not appear to support
+      the <code>canvas</code> element, either.
+    </canvas>
+
+    <!-- jQuery makes some things more convenient. -->
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+
+    <!-- GLSLUtilities is a starting point for holding functionality that
+         is common to many WebGL programs. -->
+    <script src="glsl-utilities.js"></script>
+
+    <!-- Shapes is a library that generates "canned" shapes. -->
+    <script src="mesh-maker.js"></script>
+    <script src="vector.js"></script>
+
+    <!-- Set up shaders: we've placed the source in script elements for
+        simplicity.  Shaders are ideally kept in separate files for easier
+        maintenance, but in that situation, additional code and security
+        constraints are involved. -->
+
+    <!-- The vertex shader is a complete pass-through. -->
+    <script id="vertex-shader" type="x-shader/x-vertex">
+      #ifdef GL_ES
+      precision highp float;
+      #endif
+
+      attribute vec3 vertexPosition;
+
+      // Note this new additional output.
+      attribute vec3 vertexDiffuseColor;
+      attribute vec3 vertexSpecularColor;
+      uniform mat4 projectionMatrix;
+      uniform mat4 modelViewMatrix;
+      uniform mat4 transformMatrix;
+      uniform mat4 cameraMatrix;
+      attribute vec3 normalVector;
+
+      uniform vec3 lightDiffuse;
+
+      varying vec3 fragmentNormal;
+      varying vec3 fragmentDiffuseColor;
+      varying vec3 fragmentSpecularColor;
+      varying vec3 fragmentEye;
+      varying vec3 fragmentLight;
+
+      uniform vec4 lightPosition;
+
+      void main(void) {
+         fragmentNormal = normalVector;
+         fragmentEye = vertexPosition;
+         fragmentLight = lightPosition.xyz;
+         if (lightPosition.w != 0.0) {
+             fragmentLight = lightPosition.xyz - vertexPosition;
+         }
+          // We now defer all color calculations to the fragment shader.
+         fragmentDiffuseColor = vertexDiffuseColor;
+         fragmentSpecularColor = vertexSpecularColor;
+         gl_Position = projectionMatrix * transformMatrix * cameraMatrix * modelViewMatrix * vec4(vertexPosition, 1.0);
+      }
+    </script>
+
+    <!-- The fragment shader produces a single unconditional color. -->
+    <script id="fragment-shader" type="x-shader/x-fragment">
+      #ifdef GL_ES
+      precision highp float;
+      #endif
+
+      varying vec3 fragmentDiffuseColor;
+      varying vec3 fragmentSpecularColor;
+      varying vec3 fragmentNormal;
+      varying vec3 fragmentEye;
+      varying vec3 fragmentLight;
+
+      uniform vec3 lightDiffuse;
+      uniform vec3 lightSpecular;
+      uniform float shininess;
+
+      void main(void) {
+          vec3 n = normalize(fragmentNormal);
+          vec3 e = normalize(fragmentEye);
+          vec3 l = normalize(fragmentLight);
+          // Use h = normalize(l + e) for the Blinn-Phong approximation.
+          vec3 r = 2.0 * dot(l, n) * n - l;
+          // Figure out the color of the diffuse light that lands on the vertex.
+          vec3 diffuseProduct = fragmentDiffuseColor * lightDiffuse;
+          // Calculate the amount of diffuse light that hits the vertex.
+          float kd = max(dot(l, n), 0.0);
+          vec3 finalDiffuse = kd * diffuseProduct;
+          // Figure out the color of the specular light that lands on the vertex.
+          vec3 specularProduct = fragmentSpecularColor * lightSpecular;
+          // Calculate the amount of specular light that hits the vertex.
+          // Use dot(n, h) for the Blinn-Phong approximation.
+          float ks = pow(max(dot(r, e), 0.0), shininess);
+          vec3 finalSpecular = ks * specularProduct;
+          if (dot(l, n) < 0.0) {
+              finalSpecular = vec3(0.0, 0.0, 0.0);
+          }
+          // .rgb suffix not really necessary, but included for emphasis.
+          gl_FragColor = vec4(finalDiffuse.rgb + finalSpecular.rgb, 1.0);
+      }
+    </script>
+    <h1><center>Click on the canvas to make the bear bounce!</center></h1>
+
+    <!-- This script sets up the specific scene for this page. -->
+    <script src="matrix.js"></script>
+    <script src="three-d.js"></script>
+    <script src="webgl.js"></script>
+  </body>
+</html>
